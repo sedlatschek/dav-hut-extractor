@@ -23,7 +23,7 @@ jobs:
           node-version: 14
 
       - name: Install
-        run: npm ci && cp -a public/. api
+        run: npm ci
 
       - name: Scrape
         uses: mujo-code/puppeteer-headful@master
@@ -32,8 +32,11 @@ jobs:
         with:
           args: npm run start ${{ github.event.inputs.ids }}
 
+      - name: Copy
+        run: cp -a api/. public/
+
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: api
-          folder: api
+          folder: public
