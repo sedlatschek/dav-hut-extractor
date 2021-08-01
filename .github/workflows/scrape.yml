@@ -20,6 +20,7 @@ jobs:
         run: npm ci
 
       - name: Scrape reservations
+        uses: ianwalter/puppeteer-container@v4.0.0
         run: npm run start 145
 
       - name: Deploy 🚀
