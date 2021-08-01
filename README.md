@@ -2,6 +2,8 @@
 
 Tool to extract data from the DAV hut reservation website.
 
+[API](https://sedlatschek.github.io/dav-hut-extractor/)
+
 ## Setup
 
 ```sh
