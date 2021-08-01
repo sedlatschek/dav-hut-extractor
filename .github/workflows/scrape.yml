@@ -17,7 +17,7 @@ jobs:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
         with:
           node-version: 14
-          args: install
+          args: ci
 
       - name: Scrape
         uses: mujo-code/puppeteer-headful@master
