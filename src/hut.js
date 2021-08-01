@@ -118,7 +118,7 @@ export default class Hut {
         const dataUri = canvas.toDataURL('image/png');
         return dataUri.replace(/^data:image\/(png|jpg);base64,/, '');
       } catch (error) {
-        console.error(error);
+        window.console.error(error);
       }
       return null;
     });
