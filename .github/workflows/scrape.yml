@@ -30,10 +30,7 @@ jobs:
         env:
           CI: 'true'
         with:
-          args: npm run start ${{ github.event.inputs.ids }}
-
-      - name: Copy Landing Page
-        run: cp -R public/* api
+          args: npm run start ${{ github.event.inputs.ids }}; cp -R public/* api
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.4
