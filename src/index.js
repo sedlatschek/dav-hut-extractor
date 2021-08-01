@@ -45,10 +45,10 @@ const ids = process.argv.length > 2
           }
         }
         if (hutExists) {
-          console.log(`    Name: ${hut.name}`);
+          console.log(`Name: ${hut.name}`);
           await hut.retrieveWeeks(18);
         } else {
-          console.log(`    Error: ${hut.error}`);
+          console.log(`Error: ${JSON.stringify(hut.error, null, 2)}`);
         }
       } finally {
         console.log('> Close');

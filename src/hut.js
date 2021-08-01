@@ -40,13 +40,11 @@ export default class Hut {
   constructor(id) {
     this.id = id;
     this.name = null;
-    this.info = LOCALES.reduce((o, i) => {
-      o[i] = [];
-      return o;
-    }, {});
+    this.info = LOCALES.reduce((o, i) => { o[i] = []; return o; }, {});
+    this.desc = LOCALES.reduce((o, i) => { o[i] = null; return o; }, {});
     this.bedCategories = Object.assign({}, this.info);
     this.calendar = {};
-    this.error = null;
+    this.error = Object.assign({}, this.desc);
   }
   async init(browser) {
     this.page = await browser.newPage();
@@ -55,7 +53,7 @@ export default class Hut {
     await this.page.goto(`${ALPSONLINE_URL}calendar?hut_id=${this.id}&lang=${locale}`);
     await this.page.waitForSelector('body.loading', { hidden: true });
     if (!await hidden(this.page, '#glb-error')) {
-      this.error = await text(this.page, '#glb-error .errorsMessage');
+      this.error[locale] = await text(this.page, '#glb-error .errorsMessage');
       return false;
     }
     return true;
@@ -63,6 +61,15 @@ export default class Hut {
   async retrieveInfo(locale = 'de_AT') {
     this.name = await text(this.page, '.info > h4');
     this.info[locale] = await this.page.$$eval(`.info > span`, lines => lines.map(line => line.innerText));
+    const desc = (await text(this.page, '.mainInfo'));
+    if (desc) {
+      // sanitize description
+      this.desc[locale] = desc
+        .replace(/ +/g, ' ')
+        .replace(/( \n|\n )/g, '\n')
+        .replace(/\n{2,}/g, '\n')
+        .replace(/(^\n|\n$)/g, '');
+    }
   }
   async retrieveBedCategories(locale = 'de_AT') {
     this.bedCategories[locale] = await this.page.$$eval('#roomInfo0 > div', categories => categories.map(cat => {
