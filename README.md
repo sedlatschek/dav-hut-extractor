@@ -1,5 +1,7 @@
 # DAV Hut Extractor
 
+![Logo](public/logo.svg)
+
 Tool to extract data from the DAV hut reservation website.
 
 [API](https://sedlatschek.github.io/dav-hut-extractor/)
