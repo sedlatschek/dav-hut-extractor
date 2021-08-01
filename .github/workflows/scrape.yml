@@ -1,6 +1,10 @@
 name: Scrape
 on:
   workflow_dispatch:
+    inputs:
+      ids:
+        description: 'The IDs of the huts to scrape. Leave empty to scrape all huts.'
+        required: false
   schedule:
   - cron: "0 */12 * * *"
 
@@ -26,7 +30,7 @@ jobs:
         env:
           CI: 'true'
         with:
-          args: npm run start
+          args: npm run start ${{ github.event.inputs.ids }}
 
       - name: Copy Landing Page
         run: cp -R public/* api
