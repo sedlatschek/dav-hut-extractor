@@ -72,8 +72,13 @@ export default class Hut {
     Object.values(days).forEach((day) => {
       day.forEach((cat) => {
         const date = moment(cat.reservationDate, 'DD.MM.YYYY');
-        if (date > from && (!to || to > date)) {
-          this.calendar[date.format('YYYY-MM-DD')] = cat;
+        if (date >= from && (!to || to >= date)) {
+          const key = date.format('YYYY-MM-DD');
+          if (this.calendar[key]) {
+            this.calendar[key].push(cat);
+          } else {
+            this.calendar[key] = [cat];
+          }
         }
       });
     });
