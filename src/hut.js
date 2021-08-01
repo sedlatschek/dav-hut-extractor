@@ -29,7 +29,7 @@ const request = async (
      })
        .then(response => response.json().then(r => r))
        .catch(err => {
-         console.log(err);
+          console.error(err);
        });
    },
    { url, method, options },
@@ -66,7 +66,9 @@ export default class Hut {
     }
   }
   async retrieve(from, to = null) {
-    const days = await request(this.page, `${ALPSONLINE_URL}selectDate?date=${moment(from).format('DD.MM.YYYY')}`);
+    const fromStr = moment(from).format('DD.MM.YYYY');
+    console.log(`> Retrieve reservations from ${fromStr}`);
+    const days = await request(this.page, `${ALPSONLINE_URL}selectDate?date=${fromStr}`);
     Object.values(days).forEach((day) => {
       day.forEach((cat) => {
         const date = moment(cat.reservationDate, 'DD.MM.YYYY');

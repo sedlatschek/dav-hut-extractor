@@ -1,9 +1,8 @@
-import { exists, outputJson } from 'fs-extra';
+import { outputJson } from 'fs-extra';
 import moment from 'moment';
 import puppeteer from 'puppeteer';
 import { AGENT_LOCALE } from './config';
 import Hut from './hut';
-import { sleep } from './util';
 
 const dev = process.env.NODE_ENV === 'development';
 
@@ -28,26 +27,31 @@ const ids = process.argv.length > 2
     const start = moment();
     for (let i = 0; i < ids.length; i += 1) {
       const id = parseInt(ids[i]);
-      console.log(`Hut ${id}`);
+      console.log(`\nHut ${id}`);
       const hut = new Hut(id);
       huts.push(hut);
       try {
+        console.log('> Init');
         await hut.init(browser);
+        console.log('> Navigate');
         const hutExists = await hut.navigate();
+        console.log('> Retrieve info');
         await hut.retrieveInfo();
         if (hutExists) {
-          console.log(`> Name: ${hut.name}`);
+          console.log(`    Name: ${hut.name}`);
           await hut.retrieveWeeks(18);
         } else {
-          console.log(`> Error: ${hut.error}`);
+          console.log(`    Error: ${hut.error}`);
         }
       } finally {
+        console.log('> Close');
         await hut.close();
       }
+      console.log('> Serialize');
       await hut.serialize(`./data/${id}.json`);
-      sleep(1000);
 
       // save huts every time to not lose data in case of an error
+      console.log('Save');
       outputJson('./data/huts.json', {
         ts: new Date(),
         huts: huts.map(hut => {
@@ -59,7 +63,7 @@ const ids = process.argv.length > 2
     }
 
     const duration = moment.duration(moment().diff(start));
-    console.log(`Finished in ${duration.asMinutes().toFixed(1)} minutes.`);
+    console.log(`\nFinished in ${duration.asMinutes().toFixed(1)} minutes.`);
   } catch(error) {
     console.error(error);
     success = false;
