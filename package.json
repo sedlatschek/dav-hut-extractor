@@ -1,0 +1,29 @@
+{
+  "name": "dav-hut-extractor",
+  "version": "1.0.0",
+  "description": "tool to extract data from the DAV hut reservation website",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "cross-env NODE_ENV=development node -r esm src/index.js",
+    "start": "cross-env NODE_ENV=production node -r esm src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sedlatschek/dav-hut-extractor.git"
+  },
+  "author": "Simon Sedlatschek <code@sedlatschek.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sedlatschek/dav-hut-extractor/issues"
+  },
+  "homepage": "https://github.com/sedlatschek/dav-hut-extractor#readme",
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "esm": "^3.2.25",
+    "fs-extra": "^10.0.0",
+    "moment": "^2.29.1",
+    "node-html-parser": "^4.1.2",
+    "puppeteer": "^10.1.0"
+  }
+}
