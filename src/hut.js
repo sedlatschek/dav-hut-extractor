@@ -61,10 +61,12 @@ export default class Hut {
     this.name = await text(this.page, '.info > h4');
     this.info = await this.page.$$eval(`.info > span`, lines => lines.map(line => line.innerText));
   }
-  async retrieveWeeks(n = 2) {
+  retrieveWeeks(n = 2) {
+    const promises = [];
     for (let i = 0; i < n / 2; i += 1) {
-      await this.retrieve(moment().add(i * 14, 'days'));
+      promises.push(this.retrieve(moment().add(i * 14, 'days')));
     }
+    return Promise.all(promises);
   }
   async retrieve(from, to = null) {
     const fromStr = moment(from).format('DD.MM.YYYY');
