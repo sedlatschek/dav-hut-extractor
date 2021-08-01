@@ -41,6 +41,7 @@ export default class Hut {
     this.id = id;
     this.name = null;
     this.info = null;
+    this.bedCategories = [];
     this.calendar = {};
     this.error = null;
   }
@@ -82,6 +83,14 @@ export default class Hut {
         }
       });
     });
+  }
+  async retrieveBedCategories() {
+    this.bedCategories = await this.page.$$eval('#roomInfo0 > div', categories => categories.map(cat => {
+      return {
+        id: parseInt(cat.id.replace('room0-', '')),
+        name: cat.querySelector('.item-label').innerText,
+      };
+    }));
   }
   async close() {
     await this.page.close();

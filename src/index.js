@@ -3,6 +3,7 @@ import moment from 'moment';
 import puppeteer from 'puppeteer';
 import { AGENT_LOCALE, HUT_MAX_INDEX } from './config';
 import Hut from './hut';
+import { mergeByKey } from './util';
 
 const dev = process.env.NODE_ENV === 'development';
 
@@ -24,6 +25,7 @@ const ids = process.argv.length > 2
   });
 
   const huts = [];
+
   try {
     const start = moment();
     for (let i = 0; i < ids.length; i += 1) {
@@ -38,6 +40,8 @@ const ids = process.argv.length > 2
         const hutExists = await hut.navigate();
         console.log('> Retrieve info');
         await hut.retrieveInfo();
+        console.log('> Retrieve bed categories');
+        await hut.retrieveBedCategories();
         if (hutExists) {
           console.log(`    Name: ${hut.name}`);
           await hut.retrieveWeeks(18);
@@ -52,8 +56,8 @@ const ids = process.argv.length > 2
       await hut.serialize(`./api/huts/${id}.json`);
 
       // save huts every time to not lose data in case of an error
-      console.log('Save');
-      outputJson('./api/huts/index.json', {
+      console.log('Save huts');
+      await outputJson('./api/huts/index.json', {
         ts: new Date(),
         huts: huts.map(hut => {
           if (hut.name) {
@@ -65,6 +69,21 @@ const ids = process.argv.length > 2
         })
         .filter(hut => !!hut)
         .sort((a, b) => a.id - b.id),
+      });
+
+      // save bed categories
+      console.log('Save bed categories');
+      const bedCategories = [];
+      huts.forEach((hut) => {
+        hut.bedCategories.forEach((cat) => {
+          if (bedCategories.findIndex((b) => b.id === cat.id) === -1) {
+            bedCategories.push(cat);
+          }
+        });
+      });
+      await outputJson('./api/bedcategories.json', {
+        ts: new Date(),
+        bedCategories: bedCategories.sort((a, b) => a.id - b.id)
       });
     }
 
