@@ -1,7 +1,7 @@
-import { outputJson } from 'fs-extra';
+import { ensureDir, outputJson } from 'fs-extra';
 import moment from 'moment';
 import puppeteer from 'puppeteer';
-import { HUT_MAX_INDEX, LOCALES } from './config';
+import { DIR_API, DIR_API_HUTS, HUT_MAX_INDEX, LOCALES } from './config';
 import Hut from './hut';
 
 const dev = process.env.NODE_ENV === 'development';
@@ -23,6 +23,8 @@ const ids = process.argv.length > 2
   const huts = [];
 
   try {
+    await ensureDir(DIR_API_HUTS);
+
     const start = moment();
     for (let i = 0; i < ids.length; i += 1) {
       const id = parseInt(ids[i]);
@@ -49,7 +51,7 @@ const ids = process.argv.length > 2
         if (hut.active) {
           console.log(`Name: ${hut.name}`);
           console.log('> Download image');
-          await hut.downloadImage(`./api/huts/${id}.png`);
+          await hut.downloadImage(`${DIR_API_HUTS}${id}.png`);
           await hut.retrieveWeeks(18);
         } else {
           console.log(`Error: ${JSON.stringify(hut.error, null, 2)}`);
@@ -59,11 +61,11 @@ const ids = process.argv.length > 2
         await hut.close();
       }
       console.log('> Serialize');
-      await hut.serialize(`./api/huts/${id}.json`);
+      await hut.serialize(`${DIR_API_HUTS}${id}.json`);
 
       // save huts every time to not lose data in case of an error
       console.log('Save huts');
-      await outputJson('./api/huts/index.json', {
+      await outputJson(`${DIR_API_HUTS}index.json`, {
         ts: new Date(),
         huts: huts.map(hut => {
           if (hut.name) {
@@ -92,7 +94,7 @@ const ids = process.argv.length > 2
         });
         bedCategories[locale].sort((a, b) => a.id - b.id);
       })
-      await outputJson('./api/bedcategories.json', {
+      await outputJson(`${DIR_API}bedcategories.json`, {
         ts: new Date(),
         bedCategories: bedCategories,
       });
