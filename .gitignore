@@ -1,2 +1,4 @@
 /.werk
 /node_modules
+/api
+!/api/index.html
