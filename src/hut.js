@@ -62,7 +62,7 @@ export default class Hut {
   }
   async retrieveWeeks(n = 2) {
     for (let i = 0; i < n / 2; i += 1) {
-      await this.retrieve(moment().add(i * 7, 'days'));
+      await this.retrieve(moment().add(i * 14, 'days'));
     }
   }
   async retrieve(from, to = null) {
