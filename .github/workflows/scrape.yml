@@ -30,7 +30,7 @@ jobs:
         env:
           CI: 'true'
         with:
-          args: npm run start ${{ github.event.inputs.ids }} && cp -R public/* api
+          args: cp -R public/* api && npm run start ${{ github.event.inputs.ids }}
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.4
