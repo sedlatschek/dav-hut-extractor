@@ -56,11 +56,15 @@ const ids = process.argv.length > 2
       outputJson('./api/huts/index.json', {
         ts: new Date(),
         huts: huts.map(hut => {
-          return {
-            id: hut.id,
-            name: hut.name,
-          };
-        }),
+          if (hut.name) {
+            return {
+              id: hut.id,
+              name: hut.name,
+            };
+          }
+        })
+        .filter(hut => !!hut)
+        .sort((a, b) => a.id - b.id),
       });
     }
 
