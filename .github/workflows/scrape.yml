@@ -17,10 +17,14 @@ jobs:
           node-version: 14
 
       - name: Install project dependencies
-        run: npm ci
+        uses: ianwalter/puppeteer-container@v4.0.0
+        with:
+          args: npm ci
 
       - name: Scrape reservations
-        run: npm run start 145
+        uses: ianwalter/puppeteer-container@v4.0.0
+        with:
+          args: npm run start 145
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.4
