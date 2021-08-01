@@ -8,25 +8,25 @@ jobs:
   scrape:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out Git repository
+      - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Install Node.js, NPM and Yarn
+      - name: Install
         uses: actions/setup-node@v1
+        env:
+          PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
         with:
           node-version: 14
+          args: install
 
-      - name: Install project dependencies
-        uses: ianwalter/puppeteer-container@v4.0.0
-        with:
-          args: npm ci
-
-      - name: Scrape reservations
-        uses: ianwalter/puppeteer-container@v4.0.0
+      - name: Scrape
+        uses: mujo-code/puppeteer-headful@master
+        env:
+          CI: 'true'
         with:
           args: npm run start 145
 
-      - name: Deploy 🚀
+      - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: master

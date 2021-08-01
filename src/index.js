@@ -14,12 +14,13 @@ const ids = process.argv.length > 2
   let success = true;
 
   const browser = await puppeteer.launch({
-    devtools: dev,
-    headless: !dev,
     args: [
       `--lang=${AGENT_LOCALE}`,
       '--no-sandbox',
     ],
+    devtools: dev,
+    executablePath: process.env.PUPPETEER_EXEC_PATH,
+    headless: false,
   });
 
   const huts = [];
