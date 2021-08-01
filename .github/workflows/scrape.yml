@@ -11,13 +11,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Install
+      - name: Setup
         uses: actions/setup-node@v1
         env:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
         with:
           node-version: 14
-          args: ci
+        run: npm ci
 
       - name: Scrape
         uses: mujo-code/puppeteer-headful@master
