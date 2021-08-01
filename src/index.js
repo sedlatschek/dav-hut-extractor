@@ -1,14 +1,14 @@
 import { outputJson } from 'fs-extra';
 import moment from 'moment';
 import puppeteer from 'puppeteer';
-import { AGENT_LOCALE } from './config';
+import { AGENT_LOCALE, HUT_MAX_INDEX } from './config';
 import Hut from './hut';
 
 const dev = process.env.NODE_ENV === 'development';
 
 const ids = process.argv.length > 2
   ? process.argv.slice(2)
-  : Array.from({ length: 400 }, (_, i) => i + 1);
+  : Array.from({ length: HUT_MAX_INDEX }, (_, i) => i + 1);
 
 (async () => {
   let success = true;
@@ -56,9 +56,10 @@ const ids = process.argv.length > 2
       outputJson('./data/huts.json', {
         ts: new Date(),
         huts: huts.map(hut => {
-          const tmp = {};
-          tmp[hut.id] = hut.name;
-          return tmp;
+          return {
+            id: hut.id,
+            name: hut.name,
+          };
         }),
       });
     }
@@ -69,6 +70,10 @@ const ids = process.argv.length > 2
     console.error(error);
     success = false;
   } finally {
+    // close all leftover pages
+    const pages = await browser.pages();
+    await Promise.all(pages.map(page => page.close()));
+    // close browser
     await browser.close();
     process.exit(success ? 0 : 1);
   }
