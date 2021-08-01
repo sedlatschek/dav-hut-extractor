@@ -7,7 +7,7 @@ import Hut from './hut';
 const dev = process.env.NODE_ENV === 'development';
 
 const ids = process.argv.length > 2
-  ? process.argv.slice(2)
+  ? process.argv.slice(2).map(arg => parseInt(arg)).filter(arg => !!arg)
   : Array.from({ length: HUT_MAX_INDEX }, (_, i) => i + 1);
 
 (async () => {
