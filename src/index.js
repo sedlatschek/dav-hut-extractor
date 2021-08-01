@@ -49,11 +49,11 @@ const ids = process.argv.length > 2
         await hut.close();
       }
       console.log('> Serialize');
-      await hut.serialize(`./data/${id}.json`);
+      await hut.serialize(`./api/huts/${id}.json`);
 
       // save huts every time to not lose data in case of an error
       console.log('Save');
-      outputJson('./data/huts.json', {
+      outputJson('./api/huts/index.json', {
         ts: new Date(),
         huts: huts.map(hut => {
           return {
