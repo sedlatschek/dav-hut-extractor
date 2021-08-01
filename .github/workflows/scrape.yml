@@ -23,7 +23,7 @@ jobs:
           node-version: 14
 
       - name: Install
-        run: npm ci && cp -R public/* api
+        run: npm ci && cp -a public/. api
 
       - name: Scrape
         uses: mujo-code/puppeteer-headful@master
