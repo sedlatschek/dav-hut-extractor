@@ -12,6 +12,8 @@ const ids = process.argv.length > 2
   : Array.from({ length: 400 }, (_, i) => i + 1);
 
 (async () => {
+  let success = true;
+
   const browser = await puppeteer.launch({
     devtools: dev,
     headless: !dev,
@@ -45,6 +47,7 @@ const ids = process.argv.length > 2
       await hut.serialize(`./data/${id}.json`);
       sleep(1000);
 
+      // save huts every time to not lose data in case of an error
       outputJson('./data/huts.json', {
         ts: new Date(),
         huts: huts.map(hut => {
@@ -57,7 +60,11 @@ const ids = process.argv.length > 2
 
     const duration = moment.duration(moment().diff(start));
     console.log(`Finished in ${duration.asMinutes().toFixed(1)} minutes.`);
+  } catch(error) {
+    console.error(error);
+    success = false;
   } finally {
     await browser.close();
+    process.exit(success ? 0 : 1);
   }
 })();
