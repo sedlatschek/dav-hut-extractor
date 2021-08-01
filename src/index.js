@@ -32,19 +32,21 @@ const ids = process.argv.length > 2
       try {
         console.log('> Init');
         await hut.init(browser);
-        let hutExists = false;
         for (let i = 0; i < LOCALES.length; i += 1) {
           const locale = LOCALES[i];
+
           console.log(`> Navigate (${locale})`);
-          hutExists = await hut.navigate(locale);
+          await hut.navigate(locale);
+
           console.log(`> Retrieve info (${locale})`);
           await hut.retrieveInfo(locale);
-          if (hutExists) {
+
+          if (hut.active) {
             console.log(`> Retrieve bed categories (${locale})`);
             await hut.retrieveBedCategories(locale);
           }
         }
-        if (hutExists) {
+        if (hut.active) {
           console.log(`Name: ${hut.name}`);
           console.log('> Download image');
           await hut.downloadImage(`./api/huts/${id}.png`);
@@ -68,6 +70,7 @@ const ids = process.argv.length > 2
             return {
               id: hut.id,
               name: hut.name,
+              active: hut.active,
             };
           }
         })

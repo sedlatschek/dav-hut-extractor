@@ -39,6 +39,7 @@ const request = async (
 export default class Hut {
   constructor(id) {
     this.id = id;
+    this.active = false;
     this.name = null;
     this.info = LOCALES.reduce((o, i) => { o[i] = []; return o; }, {});
     this.desc = LOCALES.reduce((o, i) => { o[i] = null; return o; }, {});
@@ -54,9 +55,9 @@ export default class Hut {
     await this.page.waitForSelector('body.loading', { hidden: true });
     if (!await hidden(this.page, '#glb-error')) {
       this.error[locale] = await text(this.page, '#glb-error .errorsMessage');
-      return false;
+    } else {
+      this.active = true;
     }
-    return true;
   }
   async retrieveInfo(locale = 'de_AT') {
     this.name = await text(this.page, '.info > h4');
