@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node -r esm src/index.js"
+    "dev": "cross-env NODE_ENV=development node -r esm src/index.js",
+    "start": "cross-env NODE_ENV=production node -r esm src/index.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +19,7 @@
   },
   "homepage": "https://github.com/sedlatschek/dav-hut-extractor#readme",
   "dependencies": {
+    "cross-env": "^7.0.3",
     "esm": "^3.2.25",
     "fs-extra": "^10.0.0",
     "moment": "^2.29.1",

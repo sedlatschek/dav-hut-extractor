@@ -1,22 +1,31 @@
-import { outputJson } from 'fs-extra';
+import { exists, outputJson } from 'fs-extra';
 import moment from 'moment';
 import puppeteer from 'puppeteer';
 import { AGENT_LOCALE } from './config';
 import Hut from './hut';
 import { sleep } from './util';
 
+const dev = process.env.NODE_ENV === 'development';
+
+const ids = process.argv.length > 2
+  ? process.argv.slice(2)
+  : Array.from({ length: 400 }, (_, i) => i + 1);
+
 (async () => {
   const browser = await puppeteer.launch({
-    devtools: true,
-    headless: false,
-    args: [`--lang=${AGENT_LOCALE}`],
+    devtools: dev,
+    headless: !dev,
+    args: [
+      `--lang=${AGENT_LOCALE}`,
+      '--no-sandbox',
+    ],
   });
 
   const huts = [];
   try {
     const start = moment();
-    for (let i = 2; i < process.argv.length; i += 1) {
-      const id = parseInt(process.argv[i]);
+    for (let i = 0; i < ids.length; i += 1) {
+      const id = parseInt(ids[i]);
       console.log(`Hut ${id}`);
       const hut = new Hut(id);
       huts.push(hut);
@@ -25,7 +34,10 @@ import { sleep } from './util';
         const hutExists = await hut.navigate();
         await hut.retrieveInfo();
         if (hutExists) {
+          console.log(`> Name: ${hut.name}`);
           await hut.retrieveWeeks(18);
+        } else {
+          console.log(`> Error: ${hut.error}`);
         }
       } finally {
         await hut.close();

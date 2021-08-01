@@ -8,6 +8,12 @@ Tool to extract data from the DAV hut reservation website.
 # intall dependencies
 npm install
 
-# run the extractor (eg. Ingolstädter Haus & Riemannhaus)
+# scrape with a browser window and dev tools
+npm run dev
+
+# scrape all huts
+npm run start
+
+# scrape specific huts (eg. Ingolstädter Haus & Riemannhaus)
 npm run start 144 145
 ```
