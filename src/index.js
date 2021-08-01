@@ -1,9 +1,8 @@
 import { outputJson } from 'fs-extra';
 import moment from 'moment';
 import puppeteer from 'puppeteer';
-import { AGENT_LOCALE, HUT_MAX_INDEX } from './config';
+import { AGENT_LOCALE, HUT_MAX_INDEX, LOCALES } from './config';
 import Hut from './hut';
-import { mergeByKey } from './util';
 
 const dev = process.env.NODE_ENV === 'development';
 
@@ -15,10 +14,7 @@ const ids = process.argv.length > 2
   let success = true;
 
   const browser = await puppeteer.launch({
-    args: [
-      `--lang=${AGENT_LOCALE}`,
-      '--no-sandbox',
-    ],
+    args: ['--no-sandbox'],
     devtools: dev,
     executablePath: process.env.PUPPETEER_EXEC_PATH,
     headless: false,
@@ -36,12 +32,18 @@ const ids = process.argv.length > 2
       try {
         console.log('> Init');
         await hut.init(browser);
-        console.log('> Navigate');
-        const hutExists = await hut.navigate();
-        console.log('> Retrieve info');
-        await hut.retrieveInfo();
-        console.log('> Retrieve bed categories');
-        await hut.retrieveBedCategories();
+        let hutExists = false;
+        for (let i = 0; i < LOCALES.length; i += 1) {
+          const locale = LOCALES[i];
+          console.log(`> Navigate (${locale})`);
+          hutExists = await hut.navigate(locale);
+          console.log(`> Retrieve info (${locale})`);
+          await hut.retrieveInfo(locale);
+          if (hutExists) {
+            console.log(`> Retrieve bed categories (${locale})`);
+            await hut.retrieveBedCategories(locale);
+          }
+        }
         if (hutExists) {
           console.log(`    Name: ${hut.name}`);
           await hut.retrieveWeeks(18);
@@ -73,17 +75,21 @@ const ids = process.argv.length > 2
 
       // save bed categories
       console.log('Save bed categories');
-      const bedCategories = [];
-      huts.forEach((hut) => {
-        hut.bedCategories.forEach((cat) => {
-          if (bedCategories.findIndex((b) => b.id === cat.id) === -1) {
-            bedCategories.push(cat);
-          }
+      const bedCategories = {};
+      LOCALES.forEach((locale) => {
+        bedCategories[locale] = [];
+        huts.forEach((hut) => {
+          hut.bedCategories[locale].forEach((cat) => {
+            if (bedCategories[locale].findIndex((b) => b.id === cat.id) === -1) {
+              bedCategories[locale].push(cat);
+            }
+          });
         });
-      });
+        bedCategories[locale].sort((a, b) => a.id - b.id);
+      })
       await outputJson('./api/bedcategories.json', {
         ts: new Date(),
-        bedCategories: bedCategories.sort((a, b) => a.id - b.id)
+        bedCategories: bedCategories,
       });
     }
 

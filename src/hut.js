@@ -1,7 +1,7 @@
 
 import { outputJson } from 'fs-extra';
 import moment from 'moment';
-import { ALPSONLINE_URL } from './config';
+import { ALPSONLINE_URL, LOCALES } from './config';
 
 async function text(page, selector) {
   const element = await page.$(selector);
@@ -40,16 +40,19 @@ export default class Hut {
   constructor(id) {
     this.id = id;
     this.name = null;
-    this.info = null;
-    this.bedCategories = [];
+    this.info = LOCALES.reduce((o, i) => {
+      o[i] = [];
+      return o;
+    }, {});
+    this.bedCategories = Object.assign({}, this.info);
     this.calendar = {};
     this.error = null;
   }
   async init(browser) {
     this.page = await browser.newPage();
   }
-  async navigate() {
-    await this.page.goto(`${ALPSONLINE_URL}calendar?hut_id=${this.id}`);
+  async navigate(locale = 'de_AT') {
+    await this.page.goto(`${ALPSONLINE_URL}calendar?hut_id=${this.id}&lang=${locale}`);
     await this.page.waitForSelector('body.loading', { hidden: true });
     if (!await hidden(this.page, '#glb-error')) {
       this.error = await text(this.page, '#glb-error .errorsMessage');
@@ -57,9 +60,17 @@ export default class Hut {
     }
     return true;
   }
-  async retrieveInfo() {
+  async retrieveInfo(locale = 'de_AT') {
     this.name = await text(this.page, '.info > h4');
-    this.info = await this.page.$$eval(`.info > span`, lines => lines.map(line => line.innerText));
+    this.info[locale] = await this.page.$$eval(`.info > span`, lines => lines.map(line => line.innerText));
+  }
+  async retrieveBedCategories(locale = 'de_AT') {
+    this.bedCategories[locale] = await this.page.$$eval('#roomInfo0 > div', categories => categories.map(cat => {
+      return {
+        id: parseInt(cat.id.replace('room0-', '')),
+        name: cat.querySelector('.item-label').innerText,
+      };
+    }));
   }
   retrieveWeeks(n = 2) {
     const promises = [];
@@ -85,14 +96,6 @@ export default class Hut {
         }
       });
     });
-  }
-  async retrieveBedCategories() {
-    this.bedCategories = await this.page.$$eval('#roomInfo0 > div', categories => categories.map(cat => {
-      return {
-        id: parseInt(cat.id.replace('room0-', '')),
-        name: cat.querySelector('.item-label').innerText,
-      };
-    }));
   }
   async close() {
     await this.page.close();
