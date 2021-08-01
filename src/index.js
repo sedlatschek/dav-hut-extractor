@@ -1,7 +1,7 @@
 import { outputJson } from 'fs-extra';
 import moment from 'moment';
 import puppeteer from 'puppeteer';
-import { AGENT_LOCALE, HUT_MAX_INDEX, LOCALES } from './config';
+import { HUT_MAX_INDEX, LOCALES } from './config';
 import Hut from './hut';
 
 const dev = process.env.NODE_ENV === 'development';
