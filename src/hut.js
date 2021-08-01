@@ -108,14 +108,19 @@ export default class Hut {
   async downloadImage(path) {
     const base64 = await this.page.$eval('.logo img', img => {
       if (!img) return null;
-      img.style.setProperty('height', 'auto');
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      const dataUri = canvas.toDataURL('image/png');
-      return dataUri.replace(/^data:image\/(png|jpg);base64,/, '');
+      try {
+        img.style.setProperty('height', 'auto');
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const dataUri = canvas.toDataURL('image/png');
+        return dataUri.replace(/^data:image\/(png|jpg);base64,/, '');
+      } catch (error) {
+        console.error(error);
+      }
+      return null;
     });
     if (base64) {
       await writeFile(path, base64, 'base64');
