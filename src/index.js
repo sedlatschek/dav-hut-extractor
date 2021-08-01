@@ -46,6 +46,8 @@ const ids = process.argv.length > 2
         }
         if (hutExists) {
           console.log(`Name: ${hut.name}`);
+          console.log('> Download image');
+          await hut.downloadImage(`./api/huts/${id}.png`);
           await hut.retrieveWeeks(18);
         } else {
           console.log(`Error: ${JSON.stringify(hut.error, null, 2)}`);
