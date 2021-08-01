@@ -17,6 +17,8 @@ jobs:
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
         with:
           node-version: 14
+
+      - name: Install
         run: npm ci
 
       - name: Scrape
