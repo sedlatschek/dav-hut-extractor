@@ -133,7 +133,7 @@ export default class Hut {
   async serialize(path) {
     await outputJson(path, {
       ts: new Date(),
-      huts: [this],
+      hut: this,
     });
   }
 }
