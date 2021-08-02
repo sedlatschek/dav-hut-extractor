@@ -106,11 +106,13 @@ const ids = process.argv.length > 2
       });
 
       // save stats
-      console.log('Save stats');
-      await outputJson(FILE_STATS, {
-        ts: new Date(),
-        errors,
-      });
+      if (process.NODE_ENV === 'production') {
+        console.log('Save stats');
+        await outputJson(FILE_STATS, {
+          ts: new Date(),
+          errors,
+        });
+      }
     }
 
     const duration = moment.duration(moment().diff(start));
