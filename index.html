@@ -12,6 +12,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="manifest" href="site.webmanifest">
     <link rel="mask-icon" href="safari-pinned-tab.svg" color="#065f46">
+    <link rel="preload" href="stats.json" as="fetch">
     <meta name="msapplication-TileColor" content="#065f46">
     <meta name="theme-color" content="#ffffff">
     <title>DAV Hut Extractor API</title>
@@ -41,6 +42,7 @@
       </div>
       <!-- main -->
       <div class="container pt-18 md:pt-24 px-6 mx-auto flex flex-wrap flex-col md:flex-row items-center">
+        <!-- api endpoints -->
         <div class="w-full flex flex-col">
           <div class="w-full flex items-center">
             <a href="huts/index.json" target="_blank" class=" mt-1 mx-5 py-1 px-2 font-mono border border-green-800 border-opacity-25 rounded bg-gray-300 hover:bg-green-700">
@@ -67,7 +69,28 @@
             <span>List of all currently used bed categories.</span>
           </div>
         </div>
+        <!-- last run -->
+        <div class="mt-16 font-weight-bold">
+          <span id="lastRun" class="font-bold"></span>
+          <ul id="errors" class="list-inside list-disc"></ul>
+        </div>
       </div>
     </div>
+    <!-- javascript -->
+    <script>
+      (async () => {
+        const stats = await fetch('stats.json').then(async (res) => await res.json());
+        const lastRun = document.getElementById('lastRun');
+        lastRun.innerHTML = 'Last run at ' + new Date(stats.ts).toLocaleString() + ' resulted in ' + stats.errors.length + ' error(s).';
+        let errors = '';
+        for (let i = 0; i < stats.errors.length; i += 1) {
+          errors += '<li>' + stats.errors[i] + '</li>';
+        }
+        if (stats.errors.length > 0) {
+          lastRun.classList.add('text-red-500');
+        }
+        document.getElementById('errors').innerHTML = errors;
+      })();
+    </script>
   </body>
 </html>
