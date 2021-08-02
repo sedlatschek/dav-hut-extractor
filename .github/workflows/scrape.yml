@@ -40,3 +40,6 @@ jobs:
         with:
           branch: api
           folder: public
+
+      - name: Exit
+        run: npm run exit

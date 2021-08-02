@@ -1,7 +1,7 @@
 import { ensureDir, outputJson } from 'fs-extra';
 import moment from 'moment';
 import puppeteer from 'puppeteer';
-import { DIR_API, DIR_API_HUTS, HUT_MAX_INDEX, LOCALES } from './config';
+import { DIR_API, DIR_API_HUTS, FILE_STATS, HUT_MAX_INDEX, LOCALES } from './config';
 import Hut from './hut';
 
 const dev = process.env.NODE_ENV === 'development';
@@ -21,47 +21,53 @@ const ids = process.argv.length > 2
   });
 
   const huts = [];
+  const errors = [];
 
   try {
     await ensureDir(DIR_API_HUTS);
 
     const start = moment();
     for (let i = 0; i < ids.length; i += 1) {
-      const id = parseInt(ids[i]);
-      console.log(`\nHut ${id}`);
-      const hut = new Hut(id);
-      huts.push(hut);
       try {
-        console.log('> Init');
-        await hut.init(browser);
-        for (let i = 0; i < LOCALES.length; i += 1) {
-          const locale = LOCALES[i];
+        const id = parseInt(ids[i]);
+        console.log(`\nHut ${id}`);
+        const hut = new Hut(id);
+        huts.push(hut);
+        try {
+          console.log('> Init');
+          await hut.init(browser);
+          for (let i = 0; i < LOCALES.length; i += 1) {
+            const locale = LOCALES[i];
 
-          console.log(`> Navigate (${locale})`);
-          await hut.navigate(locale);
+            console.log(`> Navigate (${locale})`);
+            await hut.navigate(locale);
 
-          console.log(`> Retrieve info (${locale})`);
-          await hut.retrieveInfo(locale);
+            console.log(`> Retrieve info (${locale})`);
+            await hut.retrieveInfo(locale);
 
-          if (hut.active) {
-            console.log(`> Retrieve bed categories (${locale})`);
-            await hut.retrieveBedCategories(locale);
+            if (hut.active) {
+              console.log(`> Retrieve bed categories (${locale})`);
+              await hut.retrieveBedCategories(locale);
+            }
           }
+          if (hut.active) {
+            console.log(`Name: ${hut.name}`);
+            console.log('> Download image');
+            await hut.downloadImage(`${DIR_API_HUTS}${id}.png`);
+            await hut.retrieveWeeks(18);
+          } else {
+            console.log(`Error: ${JSON.stringify(hut.error, null, 2)}`);
+          }
+        } finally {
+          console.log('> Close');
+          await hut.close();
         }
-        if (hut.active) {
-          console.log(`Name: ${hut.name}`);
-          console.log('> Download image');
-          await hut.downloadImage(`${DIR_API_HUTS}${id}.png`);
-          await hut.retrieveWeeks(18);
-        } else {
-          console.log(`Error: ${JSON.stringify(hut.error, null, 2)}`);
-        }
-      } finally {
-        console.log('> Close');
-        await hut.close();
+        console.log('> Serialize');
+        await hut.serialize(`${DIR_API_HUTS}${id}.json`);
+      } catch (error) {
+        console.error(error);
+        errors.push(JSON.stringify(error, Object.getOwnPropertyNames(error)));
       }
-      console.log('> Serialize');
-      await hut.serialize(`${DIR_API_HUTS}${id}.json`);
 
       // save huts every time to not lose data in case of an error
       console.log('Save huts');
@@ -97,6 +103,13 @@ const ids = process.argv.length > 2
       await outputJson(`${DIR_API}bedcategories.json`, {
         ts: new Date(),
         bedCategories: bedCategories,
+      });
+
+      // save stats
+      console.log('Save stats');
+      await outputJson(FILE_STATS, {
+        ts: new Date(),
+        errors,
       });
     }
 

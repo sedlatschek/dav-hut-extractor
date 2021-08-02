@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "cross-env NODE_ENV=development node -r esm src/index.js",
-    "start": "cross-env NODE_ENV=production node -r esm src/index.js"
+    "start": "cross-env NODE_ENV=production node -r esm src/index.js",
+    "exit": "cross-env NODE_ENV=production node -r esm src/exit.js"
   },
   "repository": {
     "type": "git",
